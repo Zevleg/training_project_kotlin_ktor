@@ -1,0 +1,24 @@
+[versions]
+arrow = "1.1.2"
+kotlin = "1.7.21"
+detekt = "1.22.0"
+spotless = "6.16.0"
+serialization = "1.8.10"
+ktor-plugin = "2.1.0"
+spotify-docker = "0.8.0"
+
+[libraries]
+arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
+arrow-optics = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
+arrow-fx-coroutines = { module = "io.arrow-kt:arrow-fx-coroutines", version.ref = "arrow" }
+
+[bundles]
+arrow = ["arrow-core", "arrow-optics", "arrow-fx-coroutines"]
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+serialization-ktor = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "serialization" }
+ktor-plugin = { id = "io.ktor.plugin", version.ref = "ktor-plugin" }
+spotify-docker = { id = "com.spotify.docker", version.ref = "spotify-docker" }
+detekt-jvm = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+spotless-jvm = { id = "com.diffplug.spotless", version.ref = "spotless" }

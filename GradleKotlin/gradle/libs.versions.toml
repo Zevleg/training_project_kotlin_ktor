@@ -1,0 +1,18 @@
+[versions]
+arrow = "1.1.2"
+kotlin = "1.7.21"
+detekt = "1.22.0"
+spotless = "6.16.0"
+
+[libraries]
+arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
+arrow-optics = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
+arrow-fx-coroutines = { module = "io.arrow-kt:arrow-fx-coroutines", version.ref = "arrow" }
+
+[bundles]
+arrow = ["arrow-core", "arrow-optics", "arrow-fx-coroutines"]
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+detekt-jvm = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+spotless-jvm = { id = "com.diffplug.spotless", version.ref = "spotless" }
