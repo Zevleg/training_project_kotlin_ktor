@@ -1,3 +1,5 @@
+import com.sksamuel.hoplite.ConfigLoader
+import env.Config
 import guru.zoroark.tegral.openapi.dsl.*
 import guru.zoroark.tegral.openapi.ktor.TegralOpenApiKtor
 import guru.zoroark.tegral.openapi.ktor.describe
@@ -22,12 +24,22 @@ import io.ktor.server.routing.*
 import io.ktor.util.pipeline.*
 import kotlinx.serialization.*
 import kotlinx.serialization.Serializable
+import model.Response
+import model.Service
+import model.Status
 
 @Serializable @Resource("/health/{check}")
 class Health(val check: Boolean)
 
 fun main(args: Array<String>) {
-    embeddedServer(Netty, port = 8080, host = "0.0.0.0") {
+    val config = ConfigLoader().loadConfigOrThrow<Config>("/application.conf")
+
+    /*val config = ConfigLoaderBuilder.default()
+        .addResourceSource("/application.conf")
+        .build()
+        .loadConfigOrThrow<Config>()*/
+
+    embeddedServer(Netty, port = config.server.port, host = config.server.host) {
         install(Resources)
         install(TegralOpenApiKtor)
         install(TegralSwaggerUiKtor)
@@ -41,8 +53,18 @@ fun Application.configure() {
         swaggerUiEndpoint(path = "/swagger", openApiPath = "/healthCheckApi")
         get<Health> { health ->
             when(health.check){
-                false -> call.respondText("Wrong!", status = HttpStatusCode.ServiceUnavailable)
-                true -> call.respondText("Health check")
+                false -> {
+                    val status =  Status.Unhealthy(503,"The service is unavailable because you are sending false")
+                    val service = Service("healthCheckApi", status)
+                    val response = Response(service)
+                    call.respondText("Wrong! --> response body ${response}", status = HttpStatusCode.ServiceUnavailable)
+                }
+                true -> {
+                    val status =  Status.Healthy()
+                    val service = Service("healthCheckApi", status)
+                    val response = Response(service)
+                    call.respondText("Health check --> response body ${response}")
+                }
             }
         } describe {
             description = "Health check endpoint"

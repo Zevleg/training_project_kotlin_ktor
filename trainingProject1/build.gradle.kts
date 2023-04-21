@@ -3,7 +3,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 /*plugins {
     //kotlin("jvm") version "1.7.21"
     //id("org.jetbrains.kotlin.jvm") version "1.7.21"
-    id("com.spotify.docker") version "0.8.0"
     //application
 }*/
 
@@ -78,14 +77,24 @@ dependencies {
 
     implementation("guru.zoroark.tegral:tegral-openapi-ktor:0.0.3")
     implementation("guru.zoroark.tegral:tegral-openapi-ktorui:0.0.3")
+
+    implementation("com.sksamuel.hoplite:hoplite-core:2.7.3")
+    //implementation("com.sksamuel.hoplite:hoplite-hocon:2.5.2")
+    implementation("com.sksamuel.hoplite:hoplite-hocon:2.7.4")
 }
 
 tasks.test {
     useJUnitPlatform()
 }
 
-tasks.withType<KotlinCompile> {
+/*tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
+}*/
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    kotlinOptions {
+        jvmTarget = "11"
+    }
 }
 
 val dockerBuild = tasks.register<Exec>("dockerBuild") {
