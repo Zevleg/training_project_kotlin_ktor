@@ -1,5 +1,10 @@
+package com.training.xebia.funtional
+
 import com.sksamuel.hoplite.ConfigLoader
-import env.Config
+import com.training.xebia.funtional.env.Env
+import com.training.xebia.funtional.model.Response
+import com.training.xebia.funtional.model.Service
+import com.training.xebia.funtional.model.Status
 import guru.zoroark.tegral.openapi.dsl.*
 import guru.zoroark.tegral.openapi.ktor.TegralOpenApiKtor
 import guru.zoroark.tegral.openapi.ktor.describe
@@ -23,16 +28,12 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.util.pipeline.*
 import kotlinx.serialization.*
-import kotlinx.serialization.Serializable
-import model.Response
-import model.Service
-import model.Status
 
 @Serializable @Resource("/health/{check}")
 class Health(val check: Boolean)
 
 fun main(args: Array<String>) {
-    val config = ConfigLoader().loadConfigOrThrow<Config>("/application.conf")
+    val config = ConfigLoader().loadConfigOrThrow<Env.Config>("/application.conf")
 
     /*val config = ConfigLoaderBuilder.default()
         .addResourceSource("/application.conf")
@@ -63,11 +64,11 @@ fun Application.configure() {
                     val status =  Status.Healthy()
                     val service = Service("healthCheckApi", status)
                     val response = Response(service)
-                    call.respondText("Health check --> response body ${response}")
+                    call.respondText("com.training.xebia.funtional.Health check --> response body ${response}")
                 }
             }
         } describe {
-            description = "Health check endpoint"
+            description = "com.training.xebia.funtional.Health check endpoint"
         }
     }
 }

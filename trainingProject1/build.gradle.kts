@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 /*plugins {
     //kotlin("jvm") version "1.7.21"
     //id("org.jetbrains.kotlin.jvm") version "1.7.21"
@@ -56,20 +54,20 @@ dependencies {
     implementation("io.ktor:ktor-server-core:2.2.1")
     implementation("io.ktor:ktor-server-netty:2.2.1")
     implementation("io.ktor:ktor-server-content-negotiation:2.2.1")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:2.2.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.2.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
     implementation("io.ktor:ktor-server-html-builder:2.2.1")
     implementation("io.ktor:ktor-server-resources:2.2.1")
     implementation("io.ktor:ktor-server-auto-head-response:2.2.1")
     implementation("io.ktor:ktor-server-default-headers:2.2.1")
     implementation("io.ktor:ktor-server-sessions:2.2.1")
-    implementation("ch.qos.logback:logback-classic:1.2.11")
+    implementation("ch.qos.logback:logback-classic:1.4.6")
     implementation("io.ktor:ktor-client-core:2.2.1")
     implementation("io.ktor:ktor-client-cio:2.2.1")
     implementation("io.ktor:ktor-client-resources:2.2.1")
     implementation("io.ktor:ktor-client-content-negotiation:2.2.1")
     implementation("io.ktor:ktor-server-metrics-micrometer:2.2.1")
-    implementation("io.micrometer:micrometer-registry-jmx:1.10.2")
+    implementation("io.micrometer:micrometer-registry-jmx:1.10.5")
     implementation("io.ktor:ktor-server-auth:2.2.1")
     implementation("io.ktor:ktor-server-auth-jwt:2.2.1")
     implementation("io.ktor:ktor-client-auth:2.2.1")
@@ -81,6 +79,9 @@ dependencies {
     implementation("com.sksamuel.hoplite:hoplite-core:2.7.3")
     //implementation("com.sksamuel.hoplite:hoplite-hocon:2.5.2")
     implementation("com.sksamuel.hoplite:hoplite-hocon:2.7.4")
+    implementation("io.ktor:ktor-serialization-jackson-jvm:2.2.2")
+    implementation("io.ktor:ktor-server-cors:2.2.2")
+    implementation("io.github.microutils:kotlin-logging:3.0.5")
 }
 
 tasks.test {

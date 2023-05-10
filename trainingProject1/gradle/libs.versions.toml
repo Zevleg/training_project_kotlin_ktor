@@ -1,5 +1,5 @@
 [versions]
-arrow = "1.1.2"
+arrow = "1.1.5"
 kotlin = "1.7.21"
 detekt = "1.22.0"
 spotless = "6.16.0"
