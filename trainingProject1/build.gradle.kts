@@ -12,7 +12,29 @@
     alias(libs.plugins.ktor.plugin)
     //alias(libs.plugins.detekt.jvm)
     //alias(libs.plugins.spotless.jvm)
+    alias(libs.plugins.sqldelight)
+    alias(libs.plugins.flyway)
 }
+
+sqldelight {
+    databases {
+        create("training_kotlin") {
+            packageName.set("com.training.xebia.functional")
+            dialect(libs.sqldelight.postgresql)
+        }
+    }
+}
+
+flyway {
+    url = "jdbc:postgresql://localhost:51469/training_kotlin"
+    user = "postgres"
+    password = ""
+}
+
+// Generates database interface at compile-time
+/*tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    dependsOn("generateMainBlogpostDbInterface")
+}*/
 
 /*spotless {
     kotlin {
@@ -51,6 +73,26 @@ dependencies {
     //implementation(libs.arrow.fx.coroutines)
     implementation(libs.bundles.arrow)
 
+    testImplementation(kotlin("test"))
+    testImplementation(libs.ktor.server.tests)
+    testImplementation(libs.bundles.kotest)
+
+    implementation(libs.sqldelight.jdbc)
+
+    /*val exposedVersion: String by project
+    dependencies {
+        implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
+        implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
+        implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
+    }*/
+
+    runtimeOnly(libs.postgresql)
+    implementation(libs.flyway)
+
+    implementation(libs.kotlinx.datetime)
+
+    implementation("com.zaxxer:HikariCP:5.0.1")
+
     implementation("io.ktor:ktor-server-core:2.2.1")
     implementation("io.ktor:ktor-server-netty:2.2.1")
     implementation("io.ktor:ktor-server-content-negotiation:2.2.1")
@@ -77,7 +119,6 @@ dependencies {
     implementation("guru.zoroark.tegral:tegral-openapi-ktorui:0.0.3")
 
     implementation("com.sksamuel.hoplite:hoplite-core:2.7.3")
-    //implementation("com.sksamuel.hoplite:hoplite-hocon:2.5.2")
     implementation("com.sksamuel.hoplite:hoplite-hocon:2.7.4")
     implementation("io.ktor:ktor-serialization-jackson-jvm:2.2.2")
     implementation("io.ktor:ktor-server-cors:2.2.2")

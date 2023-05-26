@@ -1,0 +1,12 @@
+
+service:
+  postgres:
+    image: postgres:15.1-alpine
+    hostname: postgres
+    ports:
+      - 5432
+    restart: always
+    environment:
+      POSTGRES_DB: training_kotlin
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD:
