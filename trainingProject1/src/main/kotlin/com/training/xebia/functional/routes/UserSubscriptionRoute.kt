@@ -1,10 +1,10 @@
 package com.training.xebia.functional.routes
 
+import com.training.xebia.functional.domain.SlackUserId
 import com.training.xebia.functional.domain.UserId
+import com.training.xebia.functional.domain.UserResponse
 import com.training.xebia.functional.model.*
-import com.training.xebia.functional.persistence.user.UsersList
 import com.training.xebia.functional.service.UserService
-import com.training.xebia.functional.utils.statusCode
 import guru.zoroark.tegral.openapi.ktor.describe
 import io.ktor.http.*
 import io.ktor.resources.*
@@ -20,56 +20,132 @@ import mu.KotlinLogging
 
 @Serializable
 @Resource("/users/subscriptions")
-class UserSubscription
+class UserSubscription{
+    @Serializable
+    @Resource("/users")
+    class RequestUsersID(val parent: UserSubscription, val ids: String)
+
+    @Serializable
+    @Resource("/id/{id}")
+    class RequestId(val parent: UserSubscription, val id: Long)
+
+    @Serializable
+    @Resource("/slackUserId/{slackUserId}")
+    class RequestSlackUserId(val parent: UserSubscription, val slackUserId: String)
+}
 
 fun Routing.userSubscriptionRoute(userService: UserService) {
     val logger: KLogger = KotlinLogging.logger { }
 
-    put<UserSubscription> {
+    put<UserSubscription.RequestSlackUserId> { req ->
         logger.info { "Got PUT Subscription request" }
 
-        val users = call.receive<Users>()
-        call.respond(
-            status = HttpStatusCode.OK,
-            UsersResponse(users.users)
-        )
-    } describe {
-        description = "Update a Subscription"
-    }
-
-    get<UserSubscription> {
-        logger.info { "Got GET Subscription request" }
-
-        val users = userService.find(UserId(1)).mapLeft { statusCode(HttpStatusCode.BadRequest) }
-        users
+        val users = userService.getOrCreate(SlackUserId(req.slackUserId))
 
         users.onRight {
 
             call.respond(
                 status = HttpStatusCode.OK,
-                UsersList(it)
+                UserResponse.User(it)
             )
         }
         users.onLeft {
             call.respond(
-                status = HttpStatusCode.BadRequest,
-                it.toString()
+                status = HttpStatusCode.ServiceUnavailable,
+                UserResponse.ErrorSlackUserIdResponse(req.slackUserId, USER_NOT_CREATED)
+            )
+        }
+    } describe {
+        description = "Update a Subscription"
+    }
+
+    get<UserSubscription.RequestUsersID> { req ->
+        logger.info { "Got GET Subscription request by slack user id" }
+
+        val idList = req.ids.split(",").map { UserId(it.toLong()) }
+
+        val users = userService.findUsers(idList)
+
+        users.onRight {
+
+            call.respond(
+                status = HttpStatusCode.OK,
+                UserResponse.UsersList(it)
+            )
+        }
+        users.onLeft {
+            call.respond(
+                status = HttpStatusCode.NotFound,
+                UserResponse.ErrorUserIdsResponse(idList, USER_NOT_FOUND)
             )
         }
     } describe {
         description = "Retrieve a Subscription"
     }
 
-    delete<UserSubscription> {
+    get<UserSubscription.RequestId> { req ->
+        logger.info { "Got GET Subscription request by id" }
+
+        val users = userService.find(UserId(req.id))
+
+        users.onRight {
+
+            call.respond(
+                status = HttpStatusCode.OK,
+                UserResponse.User(it)
+            )
+        }
+        users.onLeft {
+            call.respond(
+                status = HttpStatusCode.NotFound,
+                UserResponse.ErrorUserIdResponse(req.id, USER_NOT_FOUND)
+            )
+        }
+    } describe {
+        description = "Retrieve a Subscription"
+    }
+
+    get<UserSubscription.RequestSlackUserId> { req ->
+        logger.info { "Got GET Subscription request by slack user id" }
+
+        val users = userService.findSlackUser(SlackUserId(req.slackUserId))
+
+        users.onRight {
+
+            call.respond(
+                status = HttpStatusCode.OK,
+                UserResponse.User(it)
+            )
+        }
+        users.onLeft {
+            call.respond(
+                status = HttpStatusCode.NotFound,
+                UserResponse.ErrorSlackUserIdResponse(req.slackUserId, USER_NOT_FOUND)
+            )
+        }
+    } describe {
+        description = "Retrieve a Subscription"
+    }
+
+    delete<UserSubscription.RequestId> { req ->
         logger.info { "Got DELETE Subscription request" }
 
-        val users = call.receive<Users>()
+        userService.deleteUser(UserId(req.id))
 
         call.respond(
             status = HttpStatusCode.OK,
-            UsersResponse(users.users)
+            UserResponse.OperationOK(req.id, USER_DELETED)
         )
     } describe {
         description = "Delete a Subscription"
     }
 }
+
+private const val USER_NOT_FOUND =
+    "User not found"
+
+private const val USER_NOT_CREATED =
+    "Could not create user"
+
+private const val USER_DELETED =
+    "User deleted"

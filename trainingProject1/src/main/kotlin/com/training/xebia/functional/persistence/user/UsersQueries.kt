@@ -10,6 +10,7 @@ import app.cash.sqldelight.driver.jdbc.JdbcCursor
 import app.cash.sqldelight.driver.jdbc.JdbcPreparedStatement
 import com.training.xebia.functional.domain.SlackUserId
 import com.training.xebia.functional.domain.UserId
+import com.training.xebia.functional.domain.Users
 
 public class UsersQueries(
     driver: SqlDriver,
@@ -26,7 +27,7 @@ public class UsersQueries(
     check(cursor is JdbcCursor)
     mapper(
       usersAdapter.idAdapter.decode(cursor.getLong(0)!!),
-      usersAdapter.slack_user_idAdapter.decode(cursor.getString(1)!!)
+      usersAdapter.slackUserIdAdapter.decode(cursor.getString(1)!!)
     )
   }
 
@@ -43,7 +44,7 @@ public class UsersQueries(
     check(cursor is JdbcCursor)
     mapper(
       usersAdapter.idAdapter.decode(cursor.getLong(0)!!),
-      usersAdapter.slack_user_idAdapter.decode(cursor.getString(1)!!)
+      usersAdapter.slackUserIdAdapter.decode(cursor.getString(1)!!)
     )
   }
 
@@ -59,7 +60,7 @@ public class UsersQueries(
     check(cursor is JdbcCursor)
     mapper(
       usersAdapter.idAdapter.decode(cursor.getLong(0)!!),
-      usersAdapter.slack_user_idAdapter.decode(cursor.getString(1)!!)
+      usersAdapter.slackUserIdAdapter.decode(cursor.getString(1)!!)
     )
   }
 
@@ -69,6 +70,20 @@ public class UsersQueries(
       id,
       slack_user_id
     )
+  }
+
+  public fun deleteUser(userId: UserId): Unit {
+    driver.execute(-399472835, """
+        |DELETE FROM users
+        |WHERE id = ?
+        """.trimMargin(), 1) {
+          check(this is JdbcPreparedStatement)
+          bindLong(0, usersAdapter.idAdapter.encode(userId))
+        }
+    notifyQueries(-399472835) { emit ->
+      emit("subscriptions")
+      emit("users")
+    }
   }
 
   private inner class InsertQuery<out T : Any>(
@@ -82,7 +97,7 @@ public class UsersQueries(
     |RETURNING id
     """.trimMargin(), mapper, 1) {
       check(this is JdbcPreparedStatement)
-      bindString(0, usersAdapter.slack_user_idAdapter.encode(slackUserId))
+      bindString(0, usersAdapter.slackUserIdAdapter.encode(slackUserId))
     }
 
     public override fun toString(): String = "Users.sq:insert"
@@ -107,7 +122,7 @@ public class UsersQueries(
     |WHERE slack_user_id = ?
     """.trimMargin(), mapper, 1) {
       check(this is JdbcPreparedStatement)
-      bindString(0, usersAdapter.slack_user_idAdapter.encode(slackUserId))
+      bindString(0, usersAdapter.slackUserIdAdapter.encode(slackUserId))
     }
 
     public override fun toString(): String = "Users.sq:findSlackUser"

@@ -28,7 +28,7 @@ suspend fun ResourceScope.hikariWithEnv(env: Env.Postgres): HikariDataSource = a
     HikariDataSource(config)
 }
 
-suspend fun ResourceScope.TrainingKotlinDataSource(dataSource: DataSource): TrainingKotlin {
+suspend fun ResourceScope.trainingKotlinDataSource(dataSource: DataSource): TrainingKotlin {
     val driver = closeable { dataSource.asJdbcDriver() }
     Flyway.configure().dataSource(dataSource).load().migrate()
     TrainingKotlin.Schema.create(driver)
@@ -37,6 +37,6 @@ suspend fun ResourceScope.TrainingKotlinDataSource(dataSource: DataSource): Trai
         driver,
         Repositories.Adapter(RepositoryId.adapter, Owner.adapter, Repo.adapter),
         Subscriptions.Adapter(UserId.adapter, RepositoryId.adapter),
-        com.training.xebia.functional.persistence.user.Users.Adapter(UserId.adapter, SlackUserId.adapter)
+        Users.Adapter(UserId.adapter, SlackUserId.adapter)
     )
 }

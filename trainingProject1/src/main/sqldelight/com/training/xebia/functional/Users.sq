@@ -25,3 +25,7 @@ findUsers:
 SELECT id, slack_user_id
 FROM users
 WHERE id IN :userId;
+
+deleteUser:
+DELETE FROM users
+WHERE id = :userId;

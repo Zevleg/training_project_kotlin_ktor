@@ -1,6 +1,5 @@
 package com.training.xebia.functional
 
-import arrow.fx.coroutines.resourceScope
 import com.sksamuel.hoplite.ConfigLoader
 import com.training.xebia.functional.configure.configureRoutes
 import com.training.xebia.functional.configure.configureSerialization
@@ -17,11 +16,7 @@ import kotlin.test.assertEquals
 class ApplicationTest : StringSpec({
 
     val envConfig = ConfigLoader().loadConfigOrThrow<Env.Config>("/application.conf")
-    suspend fun getDependencies() = resourceScope {
-        Dependencies(envConfig)
-    }
-
-    val dependencies = getDependencies()
+    val dependencies = install {Dependencies(envConfig)}
 
     "Health true Test" {
         testApplication {

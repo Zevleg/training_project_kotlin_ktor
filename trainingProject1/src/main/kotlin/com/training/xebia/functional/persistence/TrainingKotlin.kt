@@ -3,11 +3,11 @@ package com.training.xebia.functional.persistence
 import app.cash.sqldelight.Transacter
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.db.SqlSchema
+import com.training.xebia.functional.domain.Users
 import com.training.xebia.functional.persistence.repositories.Repositories
 import com.training.xebia.functional.persistence.repositories.RepositoriesQueries
 import com.training.xebia.functional.persistence.subscriptions.Subscriptions
 import com.training.xebia.functional.persistence.subscriptions.SubscriptionsQueries
-import com.training.xebia.functional.persistence.user.Users
 import com.training.xebia.functional.persistence.user.UsersQueries
 
 public interface TrainingKotlin : Transacter {

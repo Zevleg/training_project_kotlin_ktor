@@ -5,26 +5,26 @@ import app.cash.sqldelight.db.AfterVersion
 import app.cash.sqldelight.db.QueryResult
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.db.SqlSchema
+import com.training.xebia.functional.domain.Users
 import com.training.xebia.functional.persistence.repositories.Repositories
 import com.training.xebia.functional.persistence.repositories.RepositoriesQueries
 import com.training.xebia.functional.persistence.subscriptions.Subscriptions
 import com.training.xebia.functional.persistence.subscriptions.SubscriptionsQueries
-import com.training.xebia.functional.persistence.user.Users
 import com.training.xebia.functional.persistence.user.UsersQueries
 import kotlin.reflect.KClass
 
 internal val KClass<TrainingKotlin>.schema: SqlSchema
-  get() = training_kotlinImpl.Schema
+  get() = TrainingKotlinImpl.Schema
 
 internal fun KClass<TrainingKotlin>.newInstance(
     driver: SqlDriver,
     repositoriesAdapter: Repositories.Adapter,
     subscriptionsAdapter: Subscriptions.Adapter,
     usersAdapter: Users.Adapter,
-): TrainingKotlin = training_kotlinImpl(driver, repositoriesAdapter, subscriptionsAdapter,
+): TrainingKotlin = TrainingKotlinImpl(driver, repositoriesAdapter, subscriptionsAdapter,
     usersAdapter)
 
-private class training_kotlinImpl(
+private class TrainingKotlinImpl(
     driver: SqlDriver,
     repositoriesAdapter: Repositories.Adapter,
     subscriptionsAdapter: Subscriptions.Adapter,
@@ -40,7 +40,7 @@ private class training_kotlinImpl(
 
   public object Schema : SqlSchema {
     public override val version: Int
-      get() = 2
+      get() = 1
 
     public override fun create(driver: SqlDriver): QueryResult<Unit> {
       driver.execute(null, """
@@ -70,42 +70,11 @@ private class training_kotlinImpl(
       return QueryResult.Unit
     }
 
-    private fun migrateInternal(
-      driver: SqlDriver,
-      oldVersion: Int,
-      newVersion: Int,
-    ): QueryResult<Unit> {
-      if (oldVersion <= 1 && newVersion > 1) {
-        driver.execute(null, """
-            |CREATE TABLE user (
-            |  id INTEGER PRIMARY KEY,
-            |  name TEXT NOT NULL
-            |)
-            """.trimMargin(), 0)
-      }
-      return QueryResult.Unit
-    }
-
     public override fun migrate(
       driver: SqlDriver,
       oldVersion: Int,
       newVersion: Int,
       vararg callbacks: AfterVersion,
-    ): QueryResult<Unit> {
-      var lastVersion = oldVersion
-
-      callbacks.filter { it.afterVersion in oldVersion until newVersion }
-      .sortedBy { it.afterVersion }
-      .forEach { callback ->
-        migrateInternal(driver, oldVersion = lastVersion, newVersion = callback.afterVersion + 1)
-        callback.block(driver)
-        lastVersion = callback.afterVersion + 1
-      }
-
-      if (lastVersion < newVersion) {
-        migrateInternal(driver, lastVersion, newVersion)
-      }
-      return QueryResult.Unit
-    }
+    ): QueryResult<Unit> = QueryResult.Unit
   }
 }
