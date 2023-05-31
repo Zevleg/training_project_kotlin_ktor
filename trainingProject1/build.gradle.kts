@@ -76,6 +76,7 @@ dependencies {
     testImplementation(kotlin("test"))
     testImplementation(libs.ktor.server.tests)
     testImplementation(libs.bundles.kotest)
+    testImplementation(libs.testcontainers.postgresql)
 
     implementation(libs.sqldelight.jdbc)
 
@@ -90,6 +91,8 @@ dependencies {
     implementation(libs.flyway)
 
     implementation(libs.kotlinx.datetime)
+    implementation(libs.suspendapp)
+    implementation(libs.suspendapp.ktor)
 
     implementation("com.zaxxer:HikariCP:5.0.1")
 

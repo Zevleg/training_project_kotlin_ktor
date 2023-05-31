@@ -17,15 +17,15 @@ suspend fun ResourceScope.hikari(): HikariDataSource = autoCloseable {
     HikariDataSource(HikariConfig("/datasource.properties"))
 }
 
-suspend fun ResourceScope.hikariWithEnv(env: Env.Postgres): HikariDataSource = autoCloseable {
-    val config = HikariConfig("/datasource.properties" )
-    config.addDataSourceProperty("serverName", env.serverName);
-    config.addDataSourceProperty("portNumber", env.portNumber);
-    config.addDataSourceProperty("databaseName", env.databaseName);
-    config.addDataSourceProperty("user", env.username);
-    config.addDataSourceProperty("password", env.password);
-
-    HikariDataSource(config)
+suspend fun ResourceScope.hikariWithEnv(env: Env.PostgresContainer): HikariDataSource = autoCloseable {
+    HikariDataSource(
+        HikariConfig().apply {
+            jdbcUrl = env.url
+            username = env.username
+            password = env.password
+            driverClassName = env.driver
+        }
+    )
 }
 
 suspend fun ResourceScope.trainingKotlinDataSource(dataSource: DataSource): TrainingKotlin {

@@ -10,7 +10,7 @@ class Dependencies(
 
 suspend fun ResourceScope.Dependencies(env: Env.Config): Dependencies {
     val dataSource = hikari()
-    val dataSourceWithEnv = hikariWithEnv(env.postgres)
+    val dataSourceWithEnv = hikariWithEnv(env.postgresContainer)
     val trainingKotlin = trainingKotlinDataSource(dataSource)
     val trainingKotlinWithEnv = trainingKotlinDataSource(dataSourceWithEnv)
     val userPersistence = UserPersistence(trainingKotlin.usersQueries)

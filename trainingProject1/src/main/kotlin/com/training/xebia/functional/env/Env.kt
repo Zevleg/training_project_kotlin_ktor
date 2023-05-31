@@ -5,6 +5,7 @@ class Env() {
         val env: String,
         val server: Server,
         val postgres: Postgres,
+        val postgresContainer: PostgresContainer,
         val github: GithubEnv
     )
 
@@ -16,6 +17,17 @@ class Env() {
         val databaseName: String,
         val username: String,
         val password: String
-    )
+    ){
+        val driver: String = "org.postgresql.Driver"
+    }
+
+    data class PostgresContainer(
+        val url: String,
+        val username: String,
+        val password: String
+    ){
+        val driver: String = "org.postgresql.Driver"
+    }
+
     data class GithubEnv(val uri: String, val token: String?)
 }

@@ -1,5 +1,6 @@
 package com.training.xebia.functional
 
+import arrow.fx.coroutines.resourceScope
 import com.sksamuel.hoplite.ConfigLoader
 import com.training.xebia.functional.configure.configureRoutes
 import com.training.xebia.functional.configure.configureSerialization
@@ -16,60 +17,68 @@ import kotlin.test.assertEquals
 class ApplicationTest : StringSpec({
 
     val envConfig = ConfigLoader().loadConfigOrThrow<Env.Config>("/application.conf")
-    val dependencies = install {Dependencies(envConfig)}
 
     "Health true Test" {
-        testApplication {
-            application {
-                configureRoutes(envConfig, dependencies)
-                configureSerialization()
-            }
-            val response = client.get("/health/true")
-            assertEquals(HttpStatusCode.OK, response.status)
-            assertEquals(
-            "{" +
-                        "\"service\":{" +
+        resourceScope {
+            val dependencies = Dependencies(envConfig)
+            testApplication {
+                application {
+                    configureRoutes(envConfig, dependencies)
+                    configureSerialization()
+                }
+                val response = client.get("/health/true")
+                assertEquals(HttpStatusCode.OK, response.status)
+                assertEquals(
+                    "{" +
+                            "\"service\":{" +
                             "\"name\":\"healthCheckApi\"," +
                             "\"status\":{" +
-                                "\"type\":\"com.training.xebia.functional.model.Status.Healthy\"," +
-                                "\"code\":200" +
+                            "\"type\":\"com.training.xebia.functional.model.Status.Healthy\"," +
+                            "\"code\":200" +
                             "}" +
-                        "}" +
-                    "}", response.bodyAsText()
-            )
+                            "}" +
+                            "}", response.bodyAsText()
+                )
+            }
         }
     }
 
     "Health false Test" {
-        testApplication {
-            application {
-                configureRoutes(envConfig, dependencies)
-                configureSerialization()
-            }
-            val response = client.get("/health/false")
-            assertEquals(HttpStatusCode.ServiceUnavailable, response.status)
-            assertEquals(
-            "{" +
-                        "\"service\":{" +
+        resourceScope {
+            val dependencies = Dependencies(envConfig)
+            testApplication {
+                application {
+                    configureRoutes(envConfig, dependencies)
+                    configureSerialization()
+                }
+                val response = client.get("/health/false")
+                assertEquals(HttpStatusCode.ServiceUnavailable, response.status)
+                assertEquals(
+                    "{" +
+                            "\"service\":{" +
                             "\"name\":\"healthCheckApi\"," +
                             "\"status\":{" +
-                                "\"type\":\"com.training.xebia.functional.model.Status.Unhealthy\"," +
-                                "\"code\":503," +
-                                "\"description\":\"The service is unavailable because you are sending false\"" +
+                            "\"type\":\"com.training.xebia.functional.model.Status.Unhealthy\"," +
+                            "\"code\":503," +
+                            "\"description\":\"The service is unavailable because you are sending false\"" +
                             "}" +
-                        "}" +
-                    "}", response.bodyAsText()
-            )
+                            "}" +
+                            "}", response.bodyAsText()
+                )
+            }
         }
     }
 
     "Test Swagger" {
-        testApplication {
-            application {
-                configureRoutes(envConfig, dependencies)
-            }
-            client.get("/swagger").apply {
-                TestCase.assertEquals(HttpStatusCode.OK, status)
+        resourceScope {
+            val dependencies = Dependencies(envConfig)
+            testApplication {
+                application {
+                    configureRoutes(envConfig, dependencies)
+                }
+                client.get("/swagger").apply {
+                    TestCase.assertEquals(HttpStatusCode.OK, status)
+                }
             }
         }
     }
