@@ -1,0 +1,32 @@
+
+version: "3.8"
+services:
+  app:
+    image: training-project
+    ports:
+      - 8080:8080
+    expose:
+      - 8080
+    networks:
+      - ktor-network
+    depends_on:
+      - postgres
+    environment:
+      POSTGRES_PASSWORD: 12345
+
+  postgres:
+    image: postgres:15.1-alpine
+    hostname: postgres
+    ports:
+      - 5432
+    restart: always
+    environment:
+      POSTGRES_DB: training_kotlin
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345
+    networks:
+      - ktor-network
+
+networks:
+  ktor-network:
+    driver: bridge
