@@ -44,11 +44,11 @@ fun main(args: Array<String>) {
         install(Resources)
         install(TegralOpenApiKtor)
         install(TegralSwaggerUiKtor)
-        configure()
+        configuring()
     }.start(wait = true)
 }
 
-fun Application.configure() {
+fun Application.configuring() {
     routing {
         openApiEndpoint("/healthCheckApi")
         swaggerUiEndpoint(path = "/swagger", openApiPath = "/healthCheckApi")

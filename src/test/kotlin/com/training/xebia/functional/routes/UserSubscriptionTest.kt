@@ -3,9 +3,9 @@ package com.training.xebia.functional.routes
 import arrow.continuations.SuspendApp
 import arrow.fx.coroutines.resourceScope
 import com.sksamuel.hoplite.ConfigLoader
+import com.training.xebia.functional.configure.configure
 import com.training.xebia.functional.env.Dependencies
 import com.training.xebia.functional.env.Env
-import com.training.xebia.functional.module
 import com.training.xebia.functional.testApp
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
@@ -37,7 +37,7 @@ class UserSubscriptionTest : StringSpec({
     "GET /subscription returns status code 20" {
         testApplication {
             application {
-                module()
+                configure()
             }
 
             // when

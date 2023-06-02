@@ -15,7 +15,7 @@ import java.lang.System.getenv
 import javax.sql.DataSource
 
 suspend fun ResourceScope.hikari(): HikariDataSource = autoCloseable {
-    HikariDataSource(HikariConfig(getenv("DATA_SOURCE_PROPERTIES")))
+    HikariDataSource(HikariConfig(getenv("DATA_SOURCE_PROPERTIES") ?: "/datasource.properties"))
 }
 
 suspend fun ResourceScope.hikariWithEnv(env: Env.PostgresContainer): HikariDataSource = autoCloseable {

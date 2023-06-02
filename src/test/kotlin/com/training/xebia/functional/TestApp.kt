@@ -3,6 +3,7 @@ package com.training.xebia.functional
 import arrow.fx.coroutines.Resource
 import arrow.fx.coroutines.continuations.ResourceScope
 import arrow.fx.coroutines.continuations.resource
+import com.training.xebia.functional.configure.configure
 import io.kotest.assertions.arrow.fx.coroutines.extension
 import io.kotest.core.extensions.LazyMaterialized
 import io.kotest.core.spec.Spec
@@ -20,7 +21,7 @@ suspend fun <A> testApp(
     val result = CompletableDeferred<A>()
     testApplication {
         application {
-            module()
+            configure()
             setup()
         }
         createClient {
