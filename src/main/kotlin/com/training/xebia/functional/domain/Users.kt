@@ -61,20 +61,20 @@ data class UserGetOrCreateError(val slackUserId: SlackUserId) : UserError
 @Serializable
 sealed class UserResponse() {
   @Serializable
-  class OperationOK(val userId: Long, val message: String)
+  class OperationOK(val userId: Long, val message: String): UserResponse()
 
   @Serializable
-  class User(val user: Users)
+  class User(val user: Users): UserResponse()
 
   @Serializable
-  class UsersList(val users: List<Users>)
+  class UsersList(val users: List<Users>): UserResponse()
 
   @Serializable
-  class ErrorUserIdResponse(val userId: Long, val errorMsg: String)
+  class ErrorUserIdResponse(val userId: Long, val errorMsg: String): UserResponse()
 
   @Serializable
-  class ErrorUserIdsResponse(val userId: List<UserId>, val errorMsg: String)
+  class ErrorUserIdsResponse(val userId: List<UserId>, val errorMsg: String): UserResponse()
 
   @Serializable
-  class ErrorSlackUserIdResponse(val slackUserId: String, val errorMsg: String)
+  class ErrorSlackUserIdResponse(val slackUserId: String, val errorMsg: String): UserResponse()
 }
