@@ -1,0 +1,42 @@
+
+version: "3.8"
+services:
+  app:
+    image: training-project
+    ports:
+      - 8080:8080
+    expose:
+      - 8080
+    networks:
+      - ktor-network
+    depends_on:
+      - postgres
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8080
+      DATA_SOURCE_PROPERTIES: /datasource-docker.properties
+      POSTGRES_URL: jdbc:postgresql://postgres:5432/training_kotlin
+      POSTGRES_SERVERNAME: postgres
+      POSTGRES_PORTNUMBER: 5432
+      POSTGRES_DATABASE: training_kotlin
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345
+
+  postgres:
+    image: postgres:15.1-alpine
+    hostname: postgres
+    ports:
+      - 5432:5432
+    expose:
+      - 5432
+    restart: always
+    environment:
+      POSTGRES_DB: training_kotlin
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345
+    networks:
+      - ktor-network
+
+networks:
+  ktor-network:
+    driver: bridge

@@ -8,7 +8,6 @@ import com.training.xebia.functional.configure.configureRoutes
 import com.training.xebia.functional.configure.configureSerialization
 import com.training.xebia.functional.env.Dependencies
 import com.training.xebia.functional.env.Env
-import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 
