@@ -16,21 +16,6 @@
     alias(libs.plugins.flyway)
 }
 
-sqldelight {
-    databases {
-        create("training_kotlin") {
-            packageName.set("com.training.xebia.functional")
-            dialect(libs.sqldelight.postgresql)
-        }
-    }
-}
-
-flyway {
-    url = "jdbc:postgresql://localhost:51469/training_kotlin"
-    user = "postgres"
-    password = ""
-}
-
 // Generates database interface at compile-time
 /*tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     dependsOn("generateMainBlogpostDbInterface")
@@ -162,6 +147,8 @@ val launchPostgres = tasks.register<Exec>("launchHealthCheck") {
         "docker",
         "run",
         //"--rm",
+        "-e",
+        "DATA_SOURCE_PROPERTIES=/datasource-docker.properties",
         "--name",
         "example-health-check",
         "-p",
@@ -171,8 +158,39 @@ val launchPostgres = tasks.register<Exec>("launchHealthCheck") {
     )
 }
 
+ktor {
+    docker {
+        jreVersion.set(io.ktor.plugin.features.JreVersion.JRE_17)
+        localImageName.set("kotlin-training-project-daniel-gelvez")
+        imageTag.set("latest")
+        externalRegistry.set(
+            io.ktor.plugin.features.DockerImageRegistry.googleContainerRegistry(
+                projectName = provider { "zevleg" },
+                appName = provider { "kotlin-training-project-daniel-gelvez" },
+                username = providers.environmentVariable("DOCKER_HUB_USERNAME"),
+                password = providers.environmentVariable("DOCKER_HUB_PASSWORD")
+            )
+        )
+    }
+}
+
 val main by extra("com.training.xebia.functional.ApplicationKt")
 
 application {
     mainClass.set(main)
+}
+
+sqldelight {
+    databases {
+        create("training_kotlin") {
+            packageName.set("com.training.xebia.functional")
+            dialect(libs.sqldelight.postgresql)
+        }
+    }
+}
+
+flyway {
+    url = "jdbc:postgresql://localhost:51469/training_kotlin"
+    user = "postgres"
+    password = "12345"
 }

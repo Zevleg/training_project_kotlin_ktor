@@ -11,10 +11,11 @@ import com.training.xebia.functional.persistence.subscriptions.Subscriptions
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import org.flywaydb.core.Flyway
+import java.lang.System.getenv
 import javax.sql.DataSource
 
 suspend fun ResourceScope.hikari(): HikariDataSource = autoCloseable {
-    HikariDataSource(HikariConfig("/datasource.properties"))
+    HikariDataSource(HikariConfig(getenv("DATA_SOURCE_PROPERTIES")))
 }
 
 suspend fun ResourceScope.hikariWithEnv(env: Env.PostgresContainer): HikariDataSource = autoCloseable {

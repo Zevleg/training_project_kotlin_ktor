@@ -1,5 +1,0 @@
-FROM openjdk:17
-VOLUME /temp
-ADD ./build/libs/trainingProject1-all.jar .
-EXPOSE 8080
-CMD ["java", "-jar", "trainingProject1-all.jar"]
