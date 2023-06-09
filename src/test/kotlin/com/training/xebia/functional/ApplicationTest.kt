@@ -2,8 +2,8 @@ package com.training.xebia.functional
 
 import arrow.fx.coroutines.resourceScope
 import com.sksamuel.hoplite.ConfigLoader
+import com.training.xebia.functional.configure.configure
 import com.training.xebia.functional.configure.configureRoutes
-import com.training.xebia.functional.configure.configureSerialization
 import com.training.xebia.functional.env.Dependencies
 import com.training.xebia.functional.env.Env
 import io.kotest.core.spec.style.StringSpec
@@ -23,8 +23,8 @@ class ApplicationTest : StringSpec({
             val dependencies = Dependencies(envConfig)
             testApplication {
                 application {
+                    configure()
                     configureRoutes(envConfig, dependencies)
-                    configureSerialization()
                 }
                 val response = client.get("/health/true")
                 assertEquals(HttpStatusCode.OK, response.status)
@@ -48,8 +48,8 @@ class ApplicationTest : StringSpec({
             val dependencies = Dependencies(envConfig)
             testApplication {
                 application {
+                    configure()
                     configureRoutes(envConfig, dependencies)
-                    configureSerialization()
                 }
                 val response = client.get("/health/false")
                 assertEquals(HttpStatusCode.ServiceUnavailable, response.status)
@@ -74,6 +74,7 @@ class ApplicationTest : StringSpec({
             val dependencies = Dependencies(envConfig)
             testApplication {
                 application {
+                    configure()
                     configureRoutes(envConfig, dependencies)
                 }
                 client.get("/swagger").apply {
