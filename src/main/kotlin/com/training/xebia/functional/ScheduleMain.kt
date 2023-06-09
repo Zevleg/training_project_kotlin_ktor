@@ -10,8 +10,8 @@ import kotlinx.coroutines.delay
 
 @ExperimentalTime
 suspend fun main(): Unit {
-    suspend fun apiCall(str: String): Unit {
-        println("apiCall . . . ${str}")
+    suspend fun apiCall(): Unit {
+        println("apiCall . . .")
         throw RuntimeException("Overloaded service")
     }
 
@@ -27,7 +27,7 @@ suspend fun main(): Unit {
         schedule.retry { circuitBreaker.protectOrThrow(f) }
 
     Either.catch {
-        resilient(Schedule.recurs(5), ::apiCall("prueba"))
+        resilient(Schedule.recurs(5), ::apiCall)
     }.let { println("recurs(5) apiCall twice and 4x short-circuit result from CircuitBreaker: $it") }
 
     delay(2000)

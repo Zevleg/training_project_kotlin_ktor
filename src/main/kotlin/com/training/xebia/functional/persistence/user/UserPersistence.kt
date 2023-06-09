@@ -7,6 +7,7 @@ import com.training.xebia.functional.domain.SlackUserId
 import com.training.xebia.functional.domain.UserId
 import com.training.xebia.functional.domain.Users
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.ExperimentalTime
 
 interface UserPersistence {
     suspend fun findUsers(userIds: List<UserId>): List<Users>
@@ -18,48 +19,65 @@ interface UserPersistence {
 }
 
 fun UserPersistence(
-    userQueries: UsersQueries
-): UserPersistence = UserPersistenceImpl(userQueries)
+    circuitBreaker: CircuitBreaker,
+    userQueries: UsersQueries,
+    retryPolicy: Schedule<Throwable, Unit> = defaultRetrySchedule
+): UserPersistence = UserPersistenceImpl(circuitBreaker, userQueries, retryPolicy)
 
-private class UserPersistenceImpl(private val userQueries: UsersQueries) : UserPersistence {
+private const val DEFAULT_RETRY_COUNT = 3
 
+@OptIn(ExperimentalTime::class)
+private val defaultRetrySchedule: Schedule<Throwable, Unit> =
+    Schedule.recurs<Throwable>(DEFAULT_RETRY_COUNT)
+        .and(Schedule.exponential(1.seconds))
+        .void()
 
-    suspend fun <A> resilient(schedule: Schedule<Throwable, *>, f: suspend () -> A): A =
-        schedule.retry { setCircuitBreaker().protectOrThrow(f) }
+private class UserPersistenceImpl(
+    private val circuitBreaker: CircuitBreaker,
+    private val userQueries: UsersQueries,
+    private val retryPolicy: Schedule<Throwable, Unit>
+) : UserPersistence {
 
     override suspend fun findUsers(userIds: List<UserId>): List<Users> =
-        Schedule.recurs<Throwable>(5).retry {
-            setCircuitBreaker().protectOrThrow(userQueries.findUsers(userIds).executeAsList())
+        retryPolicy.retry {
+            circuitBreaker.protectOrThrow { userQueries.findUsers(userIds).executeAsList() }
         }
 
 
     override suspend fun find(userId: UserId): Users? =
-        userQueries.find(userId, ::Users).executeAsOneOrNull()
+        retryPolicy.retry {
+            circuitBreaker.protectOrThrow { userQueries.find(userId, ::Users).executeAsOneOrNull() }
+        }
 
     override suspend fun findSlackUser(slackUserId: SlackUserId): Users? =
-        userQueries.findSlackUser(slackUserId, ::Users).executeAsOneOrNull()
+        retryPolicy.retry {
+            circuitBreaker.protectOrThrow {
+                userQueries.findSlackUser(slackUserId, ::Users).executeAsOneOrNull()
+            }
+        }
 
     override suspend fun getOrInsertSlackUser(slackUserId: SlackUserId): Users =
-        userQueries.transactionWithResult {
-            userQueries.findSlackUser(slackUserId, ::Users).executeAsOneOrNull()
-                ?: Users(userQueries.insert(slackUserId).executeAsOne(), slackUserId)
+        retryPolicy.retry {
+            circuitBreaker.protectOrThrow {
+                userQueries.transactionWithResult {
+                    userQueries.findSlackUser(slackUserId, ::Users).executeAsOneOrNull()
+                        ?: Users(userQueries.insert(slackUserId).executeAsOne(), slackUserId)
+                }
+            }
         }
 
     override suspend fun deleteSlackUser(slackUserId: SlackUserId): Unit =
-        userQueries.transactionWithResult {
-            val user = userQueries.findSlackUser(slackUserId, ::Users).executeAsOneOrNull()
-            userQueries.deleteUser(user!!.id)
+        retryPolicy.retry {
+            circuitBreaker.protectOrThrow {
+                userQueries.transactionWithResult {
+                    val user = userQueries.findSlackUser(slackUserId, ::Users).executeAsOneOrNull()
+                    userQueries.deleteUser(user!!.id)
+                }
+            }
         }
 
     override suspend fun deleteUser(userId: UserId): Unit =
-        userQueries.deleteUser(userId)
-}
-
-suspend fun setCircuitBreaker(): CircuitBreaker {
-    return CircuitBreaker.of(
-        maxFailures = 2,
-        resetTimeout = 2.seconds,
-        exponentialBackoffFactor = 2.0, // enable exponentialBackoffFactor
-        maxResetTimeout = 60.seconds, // limit exponential back-off time
-    )
+        retryPolicy.retry {
+            circuitBreaker.protectOrThrow { userQueries.deleteUser(userId) }
+        }
 }

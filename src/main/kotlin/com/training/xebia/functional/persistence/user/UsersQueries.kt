@@ -64,7 +64,7 @@ public class UsersQueries(
     )
   }
 
-  public suspend fun findUsers(userId: Collection<UserId>): Query<Users> = findUsers(userId) { id,
+  public fun findUsers(userId: Collection<UserId>): Query<Users> = findUsers(userId) { id,
                                                                                        slack_user_id ->
     Users(
       id,
